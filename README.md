@@ -334,3 +334,157 @@ int main()
 
 
 ```
+### 9.P1122 最大子树和
+以1为根,f[i]表示以i为根的子树的权值和最大,设i的下个点为v则f[i]+=max(0,f[v]),把所有要去的节点递归,然后整合出f[i],最后遍历最大值。
+```
+#include <iostream>
+#include<algorithm>
+#include<string>
+#include<queue>
+
+using namespace std;
+int n;
+int f[16009];
+int a[16009];
+vector<int>e[16009];
+void dfs(int now, int pre) {
+    f[now] = a[now];
+    for (int i = 0; i < e[now].size(); i++) {
+        int v = e[now][i];
+        if (v != pre) {
+            dfs(v, now);
+            f[now] += max(f[v],0);
+        }
+    }
+}
+int main()
+{
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    for (int i = 1; i < n; i++) {
+        int u, v;
+        cin >> u >> v;
+        e[u].push_back(v);
+        e[v].push_back(u);
+    }
+    dfs(1, 0);
+    int mx = -2147483647;
+    for (int i = 1; i <= n; i++) {
+        mx = max(mx, f[i]);
+    }
+    cout << mx;
+    return 0;
+}
+```
+### 10.P1395 会议
+以1为根,s[i]表示以i为根的子树的节点个数,f[i]表示以i为会议点的最小距离和,设当前为now节点,父亲节点为pre,则f[now]=f[pre]-s[now]+n-s[now],因为now比pre少走s[now]个,now比pre多走n-s[now]个。
+```
+#include <iostream>
+#include<algorithm>
+#include<string>
+#include<queue>
+
+using namespace std;
+int n;
+int s[50009], f[50009];
+vector<int>e[50009];
+void dfs(int now, int pre) {
+    s[now] = 1;
+    for (int i = 0; i < e[now].size(); i++) {
+        int v = e[now][i];
+        if (v != pre) {
+            dfs(v, now);
+            s[now] += s[v];
+        }
+    }
+
+}
+void dfs1(int now, int pre) {
+    f[now] = f[pre] + n - 2 * s[now];
+    for (int i = 0; i < e[now].size(); i++) {
+        int v = e[now][i];
+        if (v != pre) {
+            dfs1(v, now);
+        }
+    }
+}
+int main()
+{
+    cin >> n;
+    for (int i = 1; i <n; i++) {
+        int u, v;
+        cin >> u >> v;
+        e[u].push_back(v);
+        e[v].push_back(u);
+    }
+    dfs(1, 0);
+    
+    int x, y = 1e9;
+    int temp = 0;
+    for (int i = 1; i <= n; i++) {
+        temp += s[i];
+    }
+    f[0] = temp;
+    dfs1(1, 0);
+    for (int i = 1; i <= n; i++) {
+        if (f[i] < y) {
+            
+            y=f[i];
+            x = i;
+        }
+    }
+    cout << x << " " << y;
+    return 0;
+}
+```
+### 11.P让我们异或吧
+以1为根节点,xr[i]表示i到根节点1的路径上的异或值,则答案为两个点的xr的异或。
+```
+#include <iostream>
+#include<algorithm>
+#include<string>
+#include<queue>
+
+using namespace std;
+int n;
+int xr[100009];
+struct node {
+    int v, w;
+};
+vector<node>e[100009];
+void dfs(int now, int pre) {
+    for (int i = 0; i < e[now].size(); i++) {
+        int v = e[now][i].v, w = e[now][i].w;
+        if (v != pre) {
+            xr[v] = xr[now] ^ w;
+            dfs(v, now);
+            
+        }
+    }
+}
+int main()
+{
+    cin >> n;
+    for (int i = 1; i < n; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        e[u].push_back({ v,w });
+        e[v].push_back({ u,w });
+    }
+
+    dfs(1, 0);
+    int m;
+    cin >> m;
+
+    for (int i = 1; i <= m; i++) {
+        int u, v;
+        cin >> u >> v;
+        cout << (xr[u] ^ xr[v]) << endl;
+    }
+   
+        
+    return 0;
+}
+```
